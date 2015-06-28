@@ -31,7 +31,7 @@ class Enigma:
 	
 	#Browse Button reads and sets path on Entry
 	def fileManager(self):
-		self.filepath = askopenfilename(initialdir='/home/ronin',filetypes=[("Text files","*.txt")])
+		self.filepath = askopenfilename(initialdir='/home',filetypes=[("Text files","*.txt")])
 		self.directory = os.path.join(self.filepath)
 		self.textinput.insert(0,self.directory)
 
