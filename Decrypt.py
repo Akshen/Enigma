@@ -1,34 +1,3 @@
-# import tkMessageBox
-# from string import maketrans
-# class D:
-# 	def Decrypt(self,path):
-# 		Og_string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789."
-# 		semiog_string = "!)@(#*$&%^<:{}?0192837465/qazmlp>;[t]\|=-`~JKLWERxcvnVAsbrgeZO."
-
-# 		try:
-			
-# 			plain_file = open(path,'r')
-# 			file = open("Decrypted.txt",'w')
-# 			listline = plain_file.readlines()
-		
-# 			for i in xrange(len(listline)):
-# 				for x in listline[i]:
-# 					table = maketrans(semiog_string,Og_string)
-# 					file.write(x.translate(table))
-
-
-# 			file.close()
-# 			plain_file.close()
-# 			tkMessageBox.showinfo("Enigma",
-# 				"Decrypted.txt Created")
-
-# 		except:
-# 			tkMessageBox.showerror(
-# 			"Enigma","Empty"
-# 			)
-        
-
-
 import tkMessageBox
 import os
 from string import maketrans
@@ -41,13 +10,13 @@ class D:
 		combo_three = "ad456bc78gqrstMNGHIJpOPhmnoDEFQRuvwxyzijklABef23CKLSTU1VWXYZ09"
 		x, y, z = key_one, key_two, key_three
 
-		
+
 		if os.path.exists(path):
-			
+
 			plain_file = open(path,'r')
 			file = open("combo_two.txt",'w')
 			listline = plain_file.readlines()
-			
+
 			#First Step
 			z = 62-z
 			temp = combo_three[z:63]
@@ -122,4 +91,3 @@ class D:
 			tkMessageBox.showerror(
 			"Enigma","Empty"
 			)
-        

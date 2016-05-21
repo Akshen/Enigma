@@ -1,42 +1,8 @@
-# import tkMessageBox
-# from string import maketrans
-# class E:
-	
-# 	def Encrypt(self,path):
-# 		Og_string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789."
-# 		semiog_string = "!)@(#*$&%^<:{}?0192837465/qazmlp>;[t]\|=-`~JKLWERxcvnVAsbrgeZO."
-
-# 		try:
-
-# 			plain_file = open(path,'r')
-# 			file = open("Encrypted.txt",'w')
-# 			listline = plain_file.readlines()
-		
-# 			for i in xrange(len(listline)):
-# 				for x in listline[i]:
-# 					table = maketrans(Og_string,semiog_string)
-# 					file.write(x.translate(table))
-
-
-# 			file.close()
-# 			plain_file.close()
-# 			tkMessageBox.showinfo("Enigma",
-# 				"Encrypted.txt Created" )
-
-			
-# 		except:
-
-# 			tkMessageBox.showerror(
-# 			"Enigma","Empty"
-# 			)
-
-
-
 import tkMessageBox
 import os
 from string import maketrans
 class E:
-	
+
 	def Encrypt(self,path,key_one,key_two,key_three):
 
 		numalpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -50,9 +16,9 @@ class E:
 			plain_file = open(path,'r')
 			file = open("combo_one.txt",'w')
 			listline = plain_file.readlines()
-		
-			#FIRST STEP 
-			
+
+			#FIRST STEP
+
 			temp = combo_one[0:x]
 			combo_one = combo_one[x:63]
 			combo_one +=temp
@@ -119,12 +85,9 @@ class E:
 			tkMessageBox.showinfo("Enigma",
 				"Encrypted.txt Created" )
 
-			
+
 		else:
 
 			tkMessageBox.showerror(
 			"Enigma","Empty"
 			)
-
-
-
