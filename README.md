@@ -1,5 +1,6 @@
 # Enigma
 
+
 ## Version 1.0
 **Simple Python script for Encryption/Decryption with GUI**
 
@@ -16,6 +17,7 @@
 **_Keys Added_**
 
 **Keys to be typed for Encrypting and Decrypting and they should be Checked**
+
 	- Key size should be between 1-62
 
 
@@ -23,6 +25,6 @@
 
 
 
-If you have any new algorithm for this which can be used for Large Data please feel free to share Thank You!.
+Please Feel free to share Thank You!.
 
 Contact:- doke.akshen@gmail.com
