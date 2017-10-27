@@ -25,6 +25,10 @@
 ![ENIGMA](https://raw.githubusercontent.com/Akshen/Enigma/master/IMG.png)
 
 
+## Version 3.0
+**User can give new name or change name of output file.**
+
+![ENIGMA](https://raw.githubusercontent.com/Akshen/Enigma/master/IMG.png)
 
 Please Feel free to share Thank You!.
 

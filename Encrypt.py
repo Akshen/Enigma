@@ -1,9 +1,13 @@
+import re
 import tkMessageBox
 import os
 from string import maketrans
-class E:
+from logging import warning
 
-	def Encrypt(self,path,key_one,key_two,key_three):
+class E:
+	'''Encryption Class'''
+	def Encrypt(self,path,key_one,key_two,key_three,filen=None):
+		'''Encrypt Function, creates encrypted file using keys'''
 
 		numalpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
@@ -11,6 +15,7 @@ class E:
 		combo_two = "ad456bc78gqrstMNGHIJpOPhmnoDEFQRuvwxyzijklABef23CKLSTU1VWXYZ09"
 		combo_three = "ad456bc78gqrstMNGHIJpOPhmnoDEFQRuvwxyzijklABef23CKLSTU1VWXYZ09"
 		x, y, z = key_one, key_two, key_three
+		filename = filen
 
 		if os.path.exists(path):
 			plain_file = open(path,'r')
@@ -18,7 +23,6 @@ class E:
 			listline = plain_file.readlines()
 
 			#FIRST STEP
-
 			temp = combo_one[0:x]
 			combo_one = combo_one[x:63]
 			combo_one +=temp
@@ -35,7 +39,6 @@ class E:
 			file_temp = open("combo_one.txt",'r')
 			listline = file_temp.readlines()
 			file = open("combo_two.txt",'w')
-
 
 			mid = 31
 			first_half = y/2
@@ -63,7 +66,25 @@ class E:
 			#Third Step
 			file_temp = open("combo_two.txt",'r')
 			listline = file_temp.readlines()
-			file = open("Encrypted.txt",'w')
+
+			if filename is not None:
+				if os.path.exists(filename+".txt"): #Check if Filename already exists
+					tkMessageBox.showerror("Enigma",
+						"File already exists, please change filename")
+					return 0
+				else:
+					if re.match("^[a-zA-Z0-9_]*$", filename): #Check if Filename is as required
+						file = open(filename+".txt", "w")
+					else:
+						filename = re.sub("[^A-Za-z0-9]+", '', filename) #remove special characters
+						file = open(filename+".txt", "w")
+			else:
+				filename = "Encrypted.txt"
+				if os.path.exists(filename): #Check if Filename already exists
+					tkMessageBox.showerror("Enigma",
+						"File already exists, please change filename")
+					return 0
+				file = open(filename, "w")
 
 			z = 62-z
 			temp = combo_three[z:63]
@@ -80,14 +101,10 @@ class E:
 			os.remove("combo_two.txt")
 			file.close()
 
-
-
 			tkMessageBox.showinfo("Enigma",
-				"Encrypted.txt Created" )
+				"{0} Created".format(filename))
 
+			return 1
 
 		else:
-
-			tkMessageBox.showerror(
-			"Enigma","Empty"
-			)
+			return 0
