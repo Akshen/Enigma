@@ -18,51 +18,49 @@ class E:
 		filename = filen
 
 		if os.path.exists(path):
-			plain_file = open(path,'r')
-			file = open("combo_one.txt",'w')
-			listline = plain_file.readlines()
+			with  open(path,'r') as plain_file, open("combo_one.txt",'w') as file:
+				listline = plain_file.readlines()
 
-			#FIRST STEP
-			temp = combo_one[0:x]
-			combo_one = combo_one[x:63]
-			combo_one +=temp
+				#FIRST STEP
+				temp = combo_one[0:x]
+				combo_one = combo_one[x:63]
+				combo_one +=temp
 
-			for i in xrange(len(listline)):
-				for j in listline[i]:
-					table = maketrans(numalpha,combo_one)
-					file.write(j.translate(table))
+				for i in xrange(len(listline)):
+					for j in listline[i]:
+						table = maketrans(numalpha, combo_one)
+						file.write(j.translate(table))
 
-			file.close()
-			plain_file.close()
+			
 
-			#SECOND STEP
-			file_temp = open("combo_one.txt",'r')
-			listline = file_temp.readlines()
-			file = open("combo_two.txt",'w')
+			
+			with open("combo_one.txt",'r') as file_temp, open("combo_two.txt",'w') as file:
+				listline = file_temp.readlines()
 
-			mid = 31
-			first_half = y/2
-			second_half = y-first_half
+				#SECOND STEP
+				mid = 31
+				first_half = y/2
+				second_half = y-first_half
 
-			point_one = mid-first_half
-			point_two = mid + second_half
+				point_one = mid-first_half
+				point_two = mid + second_half
 
-			temp_one = combo_two[0:point_one]
-			temp_two = combo_two[point_two:63]
-			combo_two = combo_two[point_one:point_two]
-			combo_two +=temp_one
-			temp_two +=combo_two
-			combo_two = temp_two
+				temp_one = combo_two[0:point_one]
+				temp_two = combo_two[point_two:63]
+				combo_two = combo_two[point_one:point_two]
+				combo_two +=temp_one
+				temp_two +=combo_two
+				combo_two = temp_two
 
-			for i in xrange(len(listline)):
-				for j in listline[i]:
-					table = maketrans(numalpha,combo_two)
-					file.write(j.translate(table))
+				for i in xrange(len(listline)):
+					for j in listline[i]:
+						table = maketrans(numalpha,combo_two)
+						file.write(j.translate(table))
 
-			file_temp.close()
-			file.close()
-			os.remove("combo_one.txt")
+				os.remove("combo_one.txt")
 
+
+			
 			#Third Step
 			file_temp = open("combo_two.txt",'r')
 			listline = file_temp.readlines()
