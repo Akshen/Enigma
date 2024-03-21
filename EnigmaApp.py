@@ -1,187 +1,143 @@
-
 # -'''- coding: utf-8 -'''-
- 
-import sys,os
-import tkMessageBox
-import yaml
-from textwrap import dedent
-from Tkinter import * 
-from KeyValidator import *
-from Decrypt import *
-from Encrypt import *
-from tkFileDialog import askopenfilename, askdirectory
+
+import os
+import tkinter as tk
+from tkinter import messagebox, filedialog
+
+from key_validator import KeyValidator
+from decrypt import Decrypt
+from encrypt import Encrypt
 
 
 class Enigma:
-	"""Main class which creates frame and all the widgets"""
-	def __init__(self, master):
-		master.minsize(width=468, height=276)
-		master.maxsize(width=768, height=576)
-		frame = Frame(master)
+    """Main class which creates frame and all the widgets"""
 
-		self.label_keys = Label(text="KEYS:", font="-weight bold")
-		self.label_keys.place(x=90,y=30)
-		
-		#For Keys
-		self.textinput1 = Entry(width=3)
-		self.textinput1.place(x=141,y=30)
-		self.textinput2 = Entry(width=3)
-		self.textinput2.place(x=180,y=30)
-		self.textinput3 = Entry(width=3)
-		self.textinput3.place(x=221,y=30)
-		# self.btn_4 = Button(text='Check',command=self.validate)
-		# self.btn_4.place(x=270,y=27)
-		
-		self.textinput = Entry(width=24)
-		self.textinput.place(x=90,y=60)
-		
-		self.btn_3 = Button(text='Browse',command=self.fileManager)
-		self.btn_3.place(x=320,y=60)
+    def __init__(self, master):
+        master.minsize(width=468, height=276)
+        master.maxsize(width=768, height=576)
+        master.title("Enigma")
 
-		#For Filename
-		self.textinput4 = Entry(width=18)
-		self.textinput4.place(x=90,y=110)
-		self.label_outputfile = Label(
-			text='Enter Name for output file(default Encrypted.txt/Decrypted.txt)'
-			)
-		self.label_outputfile.place(x=45,y=90)
+        frame = tk.Frame(master)
+        frame.pack()
 
-		frame.pack()
-		self.btn_1 = Button(frame, text='Encrypt',command=self.Encryptor)
-		self.btn_1.pack(pady=150,side=LEFT)
+        # Label and entries for keys
+        label_keys = tk.Label(frame, text="KEYS:", font="-weight bold")
+        label_keys.grid(row=0, column=0, padx=10, pady=10)
 
-		self.btn_2 = Button(frame, text='Decrypt',command=self.Decryptor)
-		self.btn_2.pack(pady=150,side=RIGHT)
-		self.flag = 0
-		
+        self.key_entries = [
+            tk.Entry(frame, width=3) for _ in range(3)
+        ]
+        for i, entry in enumerate(self.key_entries):
+            entry.grid(row=0, column=i + 1, padx=5)
 
+        # Input file path entry and browse button
+        self.input_path = tk.Entry(frame, width=24)
+        self.input_path.grid(row=1, column=0, columnspan=3, padx=10, pady=10)
 
-	def validate(self):
-		try:
-			self.key_one = int(self.textinput1.get())
-			self.key_two = int(self.textinput2.get())
-			self.key_three = int(self.textinput3.get())
-			
-		except:
-			tkMessageBox.showinfo("Enigma",
-				"Please Enter All Keys" )
+        browse_btn = tk.Button(frame, text="Browse", command=self.browse_file)
+        browse_btn.grid(row=1, column=3, padx=10)
 
-		validate_obj = KV()
-		self.flag = validate_obj.keyvalidator(self.key_one,self.key_two,self.key_three)
-		if self.flag:
-			
-			tkMessageBox.showinfo("Enigma",
-				"KEYS are Valid")
+        # Output file name entry and label
+        label_output_file = tk.Label(
+            frame,
+            text="Enter Name for output file (default Encrypted.txt/Decrypted.txt)",
+        )
+        label_output_file.grid(row=2, column=0, columnspan=4, padx=10, pady=5)
 
+        self.output_name = tk.Entry(frame, width=18)
+        self.output_name.grid(row=3, column=0, columnspan=4, padx=10, pady=10)
 
-	
-	#Browse Button reads and sets path on Entry
-	def fileManager(self):
-		self.filepath = askopenfilename(initialdir='/home',filetypes=[("Text files","*.txt")])
-		self.directory = os.path.join(self.filepath)
-		self.textinput.insert(0,self.directory)
+        # Encrypt and Decrypt buttons
+        encrypt_btn = tk.Button(frame, text="Encrypt", command=self.encrypt_file)
+        encrypt_btn.grid(row=4, column=0, padx=10, pady=10)
 
+        decrypt_btn = tk.Button(frame, text="Decrypt", command=self.decrypt_file)
+        decrypt_btn.grid(row=4, column=3, padx=10, pady=10)
 
-	def Decryptor(self):
-		self.path = self.textinput.get()
-		self.key_one = self.textinput1.get()
-		self.key_two = self.textinput2.get()
-		self.key_three = self.textinput3.get()
-		self.filename = self.textinput4.get()
+    def browse_file(self):
+        """Open a file dialog to select input file"""
+        file_path = filedialog.askopenfilename(
+            initialdir=os.path.expanduser("~"), filetypes=[("Text files", "*.txt")]
+        )
+        if file_path:
+            self.input_path.delete(0, tk.END)
+            self.input_path.insert(0, file_path)
 
-		if len(self.key_one) == 0 or len(self.key_two) == 0 \
-			or len(self.key_three) == 0:
+    def get_keys(self):
+        """Retrieve and validate user-entered keys"""
+        keys = [entry.get() for entry in self.key_entries]
+        if not all(keys):
+            messagebox.showinfo("Enigma", "Please enter all keys")
+            return None
 
-			tkMessageBox.showinfo("Enigma",
-				"Please enter Valid Keys" )
-			return 0
+        try:
+            keys = [int(key) for key in keys]
+        except ValueError:
+            messagebox.showinfo("Enigma", "Keys must be integers")
+            return None
 
-		#Validating Keys
-		validate_obj = KV()
-		self.flag = validate_obj.keyvalidator(int(self.key_one),
-					int(self.key_two),int(self.key_three))
+        validator = KeyValidator()
+        if not validator.validate_keys(*keys):
+            messagebox.showinfo("Enigma", "Invalid keys")
+            return None
 
-		if self.flag == 0: return 0
+        return keys
 
-		#Check Path
-		if len(self.path) == 0:
-			tkMessageBox.showerror("Enigma", 
-				"Please Give a Input file.")
-			return 0
+    def encrypt_file(self):
+        """Encrypt the selected input file"""
+        keys = self.get_keys()
+        if not keys:
+            return
 
-		#Output Filename for Decrypted File
-		if len(self.filename) == 0:
-			self.filename = None
+        input_path = self.input_path.get()
+        if not input_path:
+            messagebox.showerror("Enigma", "Please select an input file")
+            return
 
-		if self.flag:
-			Decrypt_obj = D()
-			self.return_val = Decrypt_obj.Decrypt(self.path,int(self.key_one),
-							int(self.key_two),int(self.key_three),self.filename)
+        output_name = self.output_name.get() or "Encrypted.txt"
 
-			if self.return_val:	
-				self.textinput.delete(0,END)
-				self.textinput1.delete(0,END)
-				self.textinput2.delete(0,END)
-				self.textinput3.delete(0,END)
-				self.textinput4.delete(0,END)
-			else:
-				tkMessageBox.showerror(
-				"Enigma","Please give Input File "
-				)
+        try:
+            encryptor = Encrypt()
+            encryptor.encrypt_file(input_path, *keys, output_name)
+            messagebox.showinfo("Success", "File encrypted successfully")
+            self.clear_inputs()
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
 
-		
-	def Encryptor(self):
-		self.path = self.textinput.get()
-		self.key_one = self.textinput1.get()
-		self.key_two = self.textinput2.get()
-		self.key_three = self.textinput3.get()
-		self.filename = self.textinput4.get()
+    def decrypt_file(self):
+        """Decrypt the selected input file"""
+        keys = self.get_keys()
+        if not keys:
+            return
 
-		if len(self.key_one) == 0 or len(self.key_two) == 0 \
-			or len(self.key_three) == 0:
+        input_path = self.input_path.get()
+        if not input_path:
+            messagebox.showerror("Enigma", "Please select an input file")
+            return
 
-			tkMessageBox.showinfo("Enigma",
-				"Please enter Valid Keys" )
-			return 0
+        output_name = self.output_name.get() or "Decrypted.txt"
 
-		#Validating Keys
-		validate_obj = KV()
-		self.flag = validate_obj.keyvalidator(int(self.key_one),
-					int(self.key_two),int(self.key_three))
+        try:
+            decryptor = Decrypt()
+            decryptor.decrypt_file(input_path, *keys, output_name)
+            messagebox.showinfo("Success", "File decrypted successfully")
+            self.clear_inputs()
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
 
-		if self.flag == 0: return 0
+    def clear_inputs(self):
+        """Clear all input fields"""
+        self.input_path.delete(0, tk.END)
+        self.output_name.delete(0, tk.END)
+        for entry in self.key_entries:
+            entry.delete(0, tk.END)
 
-		#Check Path
-		if len(self.path) == 0:
-			tkMessageBox.showerror("Enigma", 
-				"Please Give a Input file.")
-			return 0
-
-		#Output Filename for Encrypted File
-		if len(self.filename) == 0:
-			self.filename = None	
-
-		if self.flag:
-			Encrypt_obj = E()
-			self.return_val = Encrypt_obj.Encrypt(self.path,int(self.key_one),
-							int(self.key_two),int(self.key_three),self.filename)
-
-			if self.return_val:	
-				self.textinput.delete(0,END)
-				self.textinput1.delete(0,END)
-				self.textinput2.delete(0,END)
-				self.textinput3.delete(0,END)
-				self.textinput4.delete(0,END)
-			else:
-				tkMessageBox.showerror(
-				"Enigma","Please give Input File "
-				)
 
 def main():
-	root = Tk()
-	root.wm_title("Enigma")
-	app = Enigma(root)
-	root.mainloop()
+    root = tk.Tk()
+    app = Enigma(root)
+    root.mainloop()
 
-if __name__ == '__main__':
-	main()
+
+if __name__ == "__main__":
+    main()

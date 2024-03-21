@@ -1,104 +1,165 @@
-import tkMessageBox
 import os
 import re
-from string import maketrans
+import tkinter.messagebox as messagebox
 
+class Decryptor:
+    """
+    A class to decrypt encrypted files using a three-key decryption algorithm.
 
-class D:
-	''' Decrypt Class'''
-	def Decrypt(self,path,key_one,key_two,key_three,filen=None):
-		'''This function Decrypts the given inputfile'''
+    The decryption process involves three steps:
+    1. Rearrange the characters of the encrypted string using the third key.
+    2. Perform a custom swap operation based on the second key.
+    3. Rearrange the characters again using the first key.
 
-		numalpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    The decrypted text is then written to a new file with the specified name.
+    """
 
-		combo_one = "ad456bc78gqrstMNGHIJpOPhmnoDEFQRuvwxyzijklABef23CKLSTU1VWXYZ09"
-		combo_two = "ad456bc78gqrstMNGHIJpOPhmnoDEFQRuvwxyzijklABef23CKLSTU1VWXYZ09"
-		combo_three = "ad456bc78gqrstMNGHIJpOPhmnoDEFQRuvwxyzijklABef23CKLSTU1VWXYZ09"
-		x, y, z = key_one, key_two, key_three
-		filename = filen
+    def __init__(self):
+        self.alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        self.combo_strings = ["ad456bc78gqrstMNGHIJpOPhmnoDEFQRuvwxyzijklABef23CKLSTU1VWXYZ09"] * 3
 
-		if os.path.exists(path):
-			with open(path,'r') as plain_file, open("combo_two.txt",'w') as file:
-				listline = plain_file.readlines()
+    def decrypt_file(self, input_path, key1, key2, key3, output_name=None):
+        """
+        Decrypt the contents of an encrypted file using the provided keys and write the decrypted text to a new file.
 
-				#First Step
-				z = 62-z
-				temp = combo_three[z:63]
-				combo_three = combo_three[0:z]
-				temp+=combo_three
-				combo_three = temp
+        Args:
+            input_path (str): The path to the encrypted file.
+            key1 (int): The first decryption key (0-62).
+            key2 (int): The second decryption key (0-62).
+            key3 (int): The third decryption key (0-62).
+            output_name (str, optional): The desired name for the decrypted file. If not provided, defaults to "Decrypted.txt".
 
-				for i in xrange(len(listline)):
-					for j in listline[i]:
-						table = maketrans(combo_three,numalpha)
-						file.write(j.translate(table))
+        Returns:
+            bool: True if the decryption was successful, False otherwise.
+        """
+        if not os.path.exists(input_path):
+            messagebox.showerror("Enigma", "Input file does not exist")
+            return False
 
+        self._initialize_combo_strings(key3, key2, key1)
 
+        try:
+            with open(input_path, 'r') as encrypted_file:
+                encrypted_text = encrypted_file.read()
 
-			#Second Step
-			with open("combo_two.txt",'r') as file_temp, open("combo_one.txt",'w') as file:
-				listline = file_temp.readlines()
+            decrypted_text = self._decrypt_text(encrypted_text)
 
-				mid = 31
-				first_half = y/2
-				second_half = y-first_half
+            output_name = self._get_valid_output_name(output_name)
 
-				point_one = mid-first_half
-				point_two = mid + second_half
+            with open(output_name, 'w') as decrypted_file:
+                decrypted_file.write(decrypted_text)
 
-				temp_one = combo_two[0:point_one]
-				temp_two = combo_two[point_two:63]
-				combo_two = combo_two[point_one:point_two]
-				combo_two +=temp_one
-				temp_two +=combo_two
-				combo_two = temp_two
+            messagebox.showinfo("Enigma", f"{output_name} created successfully")
+            return True
 
-				for i in xrange(len(listline)):
-					for j in listline[i]:
-						table = maketrans(combo_two,numalpha)
-						file.write(j.translate(table))
+        except Exception as e:
+            messagebox.showerror("Enigma", str(e))
+            return False
 
-			os.remove("combo_two.txt")
+    def _initialize_combo_strings(self, key3, key2, key1):
+        """
+        Initialize the combo strings based on the provided keys.
 
+        Args:
+            key3 (int): The third decryption key (0-62).
+            key2 (int): The second decryption key (0-62).
+            key1 (int): The first decryption key (0-62).
+        """
+        self.combo_strings[2] = self._rearrange_string(self.combo_strings[2], 62 - key3)
+        self.combo_strings[1] = self._swap_string(self.combo_strings[1], key2)
+        self.combo_strings[0] = self._rearrange_string(self.combo_strings[0], key1)
 
-			#Third Step
-			file_temp = open("combo_one.txt",'r')
-			listline = file_temp.readlines()
+    def _decrypt_text(self, encrypted_text):
+        """
+        Decrypt the given encrypted text using the three-step decryption process.
 
-			if filename is not None:
-				if os.path.exists(filename+".txt"): #Check if Filename already exists
-					tkMessageBox.showerror("Enigma",
-						"File already exists, please change filename")
-					return 0
-				else:
-					if re.match("^[a-zA-Z0-9_]*$", filename): #Check if Filename is as required
-						file = open(filename+".txt", "w")
-					else:
-						filename = re.sub("[^A-Za-z0-9]+", '', filename) #remove special characters
-						file = open(filename+".txt", "w")
-			else:
-				filename = "Decrypted.txt"
-				if os.path.exists(filename): #Check if Filename already exists
-					tkMessageBox.showerror("Enigma",
-						"File already exists, please change filename")
-					return 0
-				file = open(filename, "w")
+        Args:
+            encrypted_text (str): The encrypted text to be decrypted.
 
-			temp = combo_one[0:x]
-			combo_one = combo_one[x:63]
-			combo_one +=temp
+        Returns:
+            str: The decrypted text.
+        """
+        # Step 1: Rearrange characters using the third combo string
+        decrypted_text = self._translate_string(encrypted_text, self.combo_strings[2])
 
-			for i in xrange(len(listline)):
-				for j in listline[i]:
-					table = maketrans(combo_one,numalpha)
-					file.write(j.translate(table))
+        # Step 2: Perform custom swap operation using the second combo string
+        decrypted_text = self._translate_string(decrypted_text, self.combo_strings[1])
 
-			file_temp.close()
-			os.remove("combo_one.txt")
-			file.close()
+        # Step 3: Rearrange characters using the first combo string
+        decrypted_text = self._translate_string(decrypted_text, self.combo_strings[0])
 
-			tkMessageBox.showinfo("Enigma",
-				"{0} Created".format(filename))
-			return 1
-		else:
-			return 0
+        return decrypted_text
+
+    def _rearrange_string(self, string, key):
+        """
+        Rearrange the characters of the given string based on the provided key.
+
+        Args:
+            string (str): The string to be rearranged.
+            key (int): The key used for rearranging the characters (0-62).
+
+        Returns:
+            str: The rearranged string.
+        """
+        temp = string[key:] + string[:key]
+        return temp
+
+    def _swap_string(self, string, key):
+        """
+        Perform a custom swap operation on the given string based on the provided key.
+
+        Args:
+            string (str): The string to be swapped.
+            key (int): The key used for the swap operation (0-62).
+
+        Returns:
+            str: The swapped string.
+        """
+        mid = 31
+        first_half = key // 2
+        second_half = key - first_half
+        point_one = mid - first_half
+        point_two = mid + second_half
+
+        temp_one = string[point_one:point_two]
+        temp_two = string[:point_one] + string[point_two:]
+        string = temp_two + temp_one
+        return string
+
+    def _translate_string(self, string, combo_string):
+        """
+        Translate the characters of the given string using the provided combo string.
+
+        Args:
+            string (str): The string to be translated.
+            combo_string (str): The combo string used for translation.
+
+        Returns:
+            str: The translated string.
+        """
+        translation_table = str.maketrans(combo_string, self.alphabet)
+        return string.translate(translation_table)
+
+    def _get_valid_output_name(self, output_name):
+        """
+        Get a valid output file name, handling existing file conflicts and invalid characters.
+
+        Args:
+            output_name (str, optional): The desired name for the output file. If not provided, defaults to "Decrypted.txt".
+
+        Returns:
+            str: A valid output file name.
+        """
+        if not output_name:
+            output_name = "Decrypted.txt"
+        else:
+            output_name = re.sub(r'[^a-zA-Z0-9_]', '', output_name) + ".txt"
+
+        if os.path.exists(output_name):
+            root, ext = os.path.splitext(output_name)
+            i = 1
+            while os.path.exists(f"{root}_{i}{ext}"):
+                i += 1
+            output_name = f"{root}_{i}{ext}"
+
+        return output_name
